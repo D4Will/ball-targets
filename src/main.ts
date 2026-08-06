@@ -5,7 +5,7 @@ function main() {
 
   const ballTargets = new BallTargets(container);
 
-  ballTargets.render();
+  ballTargets.start();
 }
 
 main();
