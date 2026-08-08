@@ -8,6 +8,7 @@ import { createRenderer } from "./systems/renderer";
 import { Resizer } from "./systems/Resizer";
 
 import type { PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { Controls } from "./components/controls";
 
 class BallTargets {
   readonly camera: PerspectiveCamera;
@@ -22,10 +23,12 @@ class BallTargets {
     this.loop = new Loop(this.camera, this.scene, this.renderer);
     container.append(this.renderer.domElement);
 
-    const target = new Target();
-    const light = createLights();
-    this.scene.add(target, light);
-    this.loop.add(target);
+    const target = new Target(3, 1.5);
+    const lights = createLights();
+    const controls = new Controls(this.camera, this.renderer.domElement);
+
+    this.scene.add(target, ...lights);
+    this.loop.add(target, controls);
 
     new Resizer(container, this.camera, this.renderer);
   }

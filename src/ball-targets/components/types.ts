@@ -1,3 +1,3 @@
 export interface Updatable {
-  tick(): void;
+  tick(delta: number): void;
 }
