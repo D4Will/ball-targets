@@ -2,25 +2,23 @@ import {
   SphereGeometry,
   Mesh,
   MeshStandardMaterial,
-  TextureLoader,
-  SRGBColorSpace,
+  Vector3,
 } from "three";
 
 import type { Updatable } from "./types";
-import concreteTextureUrl from "../../assets/rough_concrete.jpg";
 
 class Target extends Mesh<SphereGeometry> implements Updatable{
   xSpeed: number;
   ySpeed: number;
 
-  constructor(xSpeed: number, ySpeed: number) {
-    const geometry = new SphereGeometry();
-    const material = createMaterial();
+  constructor(xSpeed: number, ySpeed: number, radius: number, position: Vector3) {
+    const geometry = new SphereGeometry(radius);
+    const material = new MeshStandardMaterial({ color: "skyblue" });
     super(geometry, material);
 
     this.xSpeed = xSpeed;
     this.ySpeed = ySpeed
-    this.position.z = -10;
+    this.position.set(position.x, position.y, position.z);
   }
 
   tick(delta: number) {
@@ -34,15 +32,6 @@ class Target extends Mesh<SphereGeometry> implements Updatable{
     position.x += this.xSpeed * delta;
     position.y += this.ySpeed * delta;
   }
-}
-
-function createMaterial(): MeshStandardMaterial {
-  const textureLoader = new TextureLoader();
-  const texture = textureLoader.load(concreteTextureUrl);
-  texture.colorSpace = SRGBColorSpace;
-  const material = new MeshStandardMaterial({ map: texture });
-
-  return material;
 }
 
 export { Target };
