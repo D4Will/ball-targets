@@ -13,14 +13,17 @@ type GridConfig = {
 type point2D = {x: number, y: number}
 type gridCell = {point: point2D, obj: Object3D | null}
 
-export class GridShotGroup extends Group implements Updatable {
+export class GridShot extends Group implements Updatable {
   config: GridConfig;
   grid: gridCell[][];
 
-  constructor(zPos: number) {
+  constructor(
+    distance: number,
+    config?: Partial<GridConfig>,
+  ) {
     super();
 
-    this.config = {
+    const defaultConfig: GridConfig = {
       targetRadius: .5,
       activeTargetCount: 3,
       rows: 5,
@@ -28,38 +31,18 @@ export class GridShotGroup extends Group implements Updatable {
       gapSize: .1,
     }
 
-    this.position.z = zPos;
+    this.config = { ...defaultConfig, ...config };
+
+    this.position.z = -1 * distance;
 
     // create and initialize grid
     this.grid = [];
     this.initGrid();
-
-    const target1Pos = new Vector3(
-      this.grid[0][0].point.x,
-      this.grid[0][0].point.y,
-      0,
-    );
-    const target1 = new Target(0, 0, this.config.targetRadius, target1Pos);
-    this.add(target1);
-    this.grid[0][0].obj = target1;
-
-    const target2Pos = new Vector3(
-      this.grid[2][2].point.x,
-      this.grid[2][2].point.y,
-      0,
-    );
-    const target2 = new Target(0, 0, this.config.targetRadius, target2Pos);
-    this.add(target2);
-    this.grid[2][2].obj = target2;
-
-    const target3Pos = new Vector3(
-      this.grid[4][4].point.x,
-      this.grid[4][4].point.y,
-      0,
-    );
-    const target3 = new Target(0, 0, this.config.targetRadius, target3Pos);
-    this.add(target3);
-    this.grid[4][4].obj = target3;
+    
+    // randomly add initial targets
+    for (let i = 0; i < this.config.activeTargetCount; i++) {
+      this.randomAddTarget()
+    }
   }
 
   // initializes grid based on config
@@ -87,27 +70,21 @@ export class GridShotGroup extends Group implements Updatable {
 
   // handles click input
   handleHit(hits: Intersection<Object3D<Object3DEventMap>>[]) {
-    console.log("handle hit")
     if (!hits.length) {
-      console.log("no hits")
       return;
     }
 
-    console.log("hit");
     const hit = hits[0].object;
-    console.log(hit.type);
     const { col, row } = this.findCellByObj(hit);
-    console.log("Hit at: ", col, row);
 
     if (col > -1 && row > -1) {
-      this.randomMovePoint(col, row);
+      this.randomMoveTarget(col, row);
     }
   };
 
   // return grid position of obj
   findCellByObj(obj: Object3D): {col: number, row: number} {
     for (let i = 0; i < this.grid.length; i++) {
-      console.log("col: ", i);
       // loop through columns
       for (let j = 0; j < this.grid[i].length; j++) {
         // loop through rows
@@ -124,8 +101,7 @@ export class GridShotGroup extends Group implements Updatable {
   }
 
   // randomly moves target to open spot
-  randomMovePoint(col: number, row: number): void {
-    console.log("hi");
+  randomMoveTarget(col: number, row: number): void {
     this.removeTarget(col, row);
 
     let randCol: number;
@@ -141,8 +117,22 @@ export class GridShotGroup extends Group implements Updatable {
     this.addTarget(randCol, randRow);
   }
 
+  // randomly adds target to grid
+  randomAddTarget(): void {
+    let randCol: number;
+    let randRow: number;    
+    do {
+      randCol = Math.floor(Math.random() * this.config.cols);
+      randRow = Math.floor(Math.random() * this.config.rows);
+    } while (
+      (this.grid[randCol][randRow].obj)
+    )
+    
+    this.addTarget(randCol, randRow);
+  }
+
   // removes old target and adds new one
-  movePoint(col1: number, row1: number, col2: number, row2: number): void {
+  moveTarget(col1: number, row1: number, col2: number, row2: number): void {
     this.removeTarget(col1, row1);
     this.addTarget(col2, row2);
   }
@@ -160,7 +150,7 @@ export class GridShotGroup extends Group implements Updatable {
       cell.point.y,
       0,
     );
-    cell.obj = new Target(0, 0, this.config.targetRadius, targetPos);
+    cell.obj = new Target(targetPos, this.config.targetRadius);
     this.add(cell.obj);
   }
 
@@ -175,6 +165,10 @@ export class GridShotGroup extends Group implements Updatable {
 
   // implemented for Updatable
   tick(delta: number): void {
-    delta;
+    for (const child of this.children) {
+      if (child instanceof Target) {
+        child.tick(delta);
+      }
+    }
   };
 }

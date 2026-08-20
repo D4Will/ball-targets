@@ -8,7 +8,7 @@ function createCamera(): PerspectiveCamera {
     300, // Far clipping plane
   );
 
-  camera.position.set(0, 0, 10);
+  camera.position.set(0, 0, 0);
 
   return camera;
 }

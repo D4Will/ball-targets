@@ -4,18 +4,20 @@ import type { Updatable } from './types';
 
 export class Controls extends PointerLockControls implements Updatable {
   raycast: Raycaster;
+  vector: Vector3;
 
   constructor(camera: PerspectiveCamera, canvas: HTMLCanvasElement) {
     super(camera, canvas);
     this.raycast = new Raycaster();
     this.raycast.far = 50;
+    this.vector = new Vector3();
   }
   
   getHits(camera: PerspectiveCamera, objects: Object3D[]): Intersection<Object3D<Object3DEventMap>>[] {
     const origin = camera.position;
-    const direction = this.getDirection(new Vector3());
+    this.vector = this.getDirection(new Vector3());
 
-    this.raycast.set(origin, direction);
+    this.raycast.set(origin, this.vector);
     return this.raycast.intersectObjects(objects)
   }
 

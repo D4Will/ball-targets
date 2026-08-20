@@ -8,8 +8,9 @@ import { Resizer } from "./systems/Resizer";
 
 import { type PerspectiveCamera, type Scene, type WebGLRenderer } from "three";
 import { Controls } from "./components/controls";
-import { GridShotGroup } from "./components/group";
-import { createBackground } from "./components/map";
+import { GridShot } from "./components/gridShot";
+import { Structure } from "./components/map";
+import { BounceTrack } from "./components/bounceTrack";
 
 class BallTargets {
   readonly camera: PerspectiveCamera;
@@ -24,8 +25,9 @@ class BallTargets {
     this.loop = new Loop(this.camera, this.scene, this.renderer);
     container.append(this.renderer.domElement);
 
-    const background = createBackground(20, 10, 2);
-    const gridGroup = new GridShotGroup(-2);
+    const structure = new Structure();
+    // const gameGroup = new GridShot(10, { targetRadius: .5, activeTargetCount: 2 });
+    const gameGroup = new BounceTrack(10);
     const lights = createLights();
     const controls = new Controls(this.camera, this.renderer.domElement);
 
@@ -33,8 +35,8 @@ class BallTargets {
       if (!controls.isLocked) {
         controls.lock();
       } else {
-        const hits = controls.getHits(this.camera, gridGroup.children);
-        gridGroup.handleHit(hits);
+        const hits = controls.getHits(this.camera, gameGroup.children);
+        gameGroup.handleHit(hits);
       }
     })
 
@@ -46,10 +48,8 @@ class BallTargets {
       }
     })
 
-
-
-    this.scene.add(background, gridGroup, ...lights);
-    this.loop.add(gridGroup, controls);
+    this.scene.add(structure, gameGroup, ...lights);
+    this.loop.add(gameGroup, controls);
 
     new Resizer(container, this.camera, this.renderer);
   }
