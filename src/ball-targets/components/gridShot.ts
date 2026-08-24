@@ -18,7 +18,6 @@ export class GridShot extends Group implements Updatable {
   grid: gridCell[][];
 
   constructor(
-    distance: number,
     config?: Partial<GridConfig>,
   ) {
     super();
@@ -32,8 +31,6 @@ export class GridShot extends Group implements Updatable {
     }
 
     this.config = { ...defaultConfig, ...config };
-
-    this.position.z = -1 * distance;
 
     // create and initialize grid
     this.grid = [];

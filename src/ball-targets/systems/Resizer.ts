@@ -9,18 +9,26 @@ function setSize(container: HTMLDivElement, camera: PerspectiveCamera, renderer:
 };
 
 class Resizer {
+  readonly onWindowResize: () => void;
+
   constructor(container: HTMLDivElement, camera: PerspectiveCamera, renderer: WebGLRenderer) {
     // set initial size
     setSize(container, camera, renderer);
 
-    window.addEventListener('resize', () => {
+    this.onWindowResize = () => {
       setSize(container, camera, renderer);
       this.onResize();
-    })
+    };
+
+    window.addEventListener('resize', this.onWindowResize)
   }
 
   // Defined in BallTargets
   onResize() {}
+
+  dispose() {
+    window.removeEventListener('resize', this.onWindowResize);
+  }
 }
 
 export { Resizer };

@@ -18,7 +18,6 @@ export class BounceTrack extends Group implements Updatable {
   config: BounceConfig;
 
   constructor(
-    distance: number,
     config?: Partial<BounceConfig>,
   ) {
     super();
@@ -36,8 +35,6 @@ export class BounceTrack extends Group implements Updatable {
     }
 
     this.config = { ...defaultConfig, ...config };
-
-    this.position.z = -1 * distance;
     
     // randomly add initial targets
     for (let i = 0; i < this.config.activeTargetCount; i++) {
@@ -53,19 +50,20 @@ export class BounceTrack extends Group implements Updatable {
 
     const hit = hits[0].object;
     this.removeTarget(hit);
+    this.addTarget();
   };
 
   // add target 
   addTarget(): void {
     let xVelocity = Math.random() * 10 - 5;
-    let yVelocity = Math.random() * 4 + 8;
+    let yVelocity = Math.random() * 4 + 12;
     const radius = this.config.targetRadius;
     const { bounds, gravity } = this.config;
 
     const target = new Target(
       {
         x: Math.random() * (bounds.xMax - bounds.xMin) + bounds.xMin,
-        y: Math.random() * (bounds.yMax - bounds.yMin) + bounds.yMin,
+        y: bounds.yMin + radius,
         z: 0,
       },
       radius,
